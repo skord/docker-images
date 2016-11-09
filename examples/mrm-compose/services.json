@@ -1,0 +1,11 @@
+{
+  "Datacenter": "dc1",
+  "Node": "maxscale_exporter",
+  "Address": "10.190.0.3",
+  "Service": {
+    "ID": "maxscale_exporter",
+    "Service": "maxscale_exporter",
+    "Address": "10.190.0.3",
+    "Port": 9195
+  }
+}
