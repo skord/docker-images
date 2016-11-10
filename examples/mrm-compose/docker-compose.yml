@@ -18,6 +18,9 @@ services:
       - "3000:3000"
     environment:
       - DATABASE_URL=mysql2://appuser:app-pass@maxscale:13306/maxbook_db?reaping_frequency=5&dead_connection_timeout=5&pool=2
+      - RAILS_ENV=production
+      - SECRET_KEY_BASE=config.secret_key=dcaa507ca8aa0a6ffe91727d5e8b5113b94e6988429f387e428e4879c4e3f4039e8c8cb4b9d809d6fd10d5d506a4b444a553b1daf906e1c014b8f2b3baf92ae4
+      - RAILS_SERVE_STATIC_FILES=true
 
   maxpanel:
     image: skord/maxpanel

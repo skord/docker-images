@@ -9,3 +9,6 @@ echo "sleeping 5 to give maxscale a moment to find the topology"
 docker-compose run --rm app rails db:migrate
 echo "Seeding app, may take a moment"
 docker-compose run --rm app rails db:seed
+echo "precompiling rails assets, again, takes a moment"
+docker exec -it mrmcompose_app_1 rails assets:precompile
+docker-compose restart app
