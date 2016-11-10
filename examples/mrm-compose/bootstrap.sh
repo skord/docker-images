@@ -1,6 +1,6 @@
 #!/bin/bash
 docker-compose up -d consul
-consul-backup -i localhost:8500 --restore consul.backup
+consul-backinator restore -addr desk2.local:8500
 docker-compose up -d
 echo "sleeping for 15 seconds so the db's can initialize"
 sleep 15
