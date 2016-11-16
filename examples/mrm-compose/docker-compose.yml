@@ -23,7 +23,7 @@ services:
       - RAILS_SERVE_STATIC_FILES=true
 
   maxpanel:
-    image: skord/maxpanel:edge
+    image: skord/maxpanel
     depends_on:
       - maxscale
     environment:
