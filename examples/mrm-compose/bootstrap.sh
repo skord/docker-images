@@ -1,4 +1,6 @@
 #!/bin/bash
+docker-compose pull
+docker-compose build
 docker-compose up -d consul
 echo "sleeping 5 seconds to ensure consul is initialized"
 sleep 5
