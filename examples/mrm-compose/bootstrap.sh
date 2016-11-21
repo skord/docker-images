@@ -1,11 +1,10 @@
 #!/bin/bash
 docker-compose pull
-docker-compose build
 docker-compose up -d consul
 echo "sleeping 5 seconds to ensure consul is initialized"
 sleep 5
 echo "restoring consul data"
-consul-backinator restore -addr desk2.local:8500
+consul-backinator restore -addr localhost:8500
 echo "bringing up cluster"
 docker-compose up -d
 echo "sleeping for 15 seconds so the db's can initialize"
