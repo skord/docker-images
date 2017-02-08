@@ -1,0 +1,98 @@
+---
+version: '2'
+services:
+  maxscale:
+    build:
+      context: ../../maxscale/latest
+      dockerfile: Dockerfile
+    volumes:
+      - ./maxscale/maxscale.cnf:/etc/maxscale.cnf:ro
+    depends_on:
+      - mrm
+    expose:
+      - 13306
+      - 13307
+      - 8003
+      - 9003
+    ports:
+      - "13306:13306"
+      - "13307:13307"
+      - "8003:8003"
+      - "9003:9003"
+    depends_on:
+      - mrm
+  mrm:
+    image: tanji/replication-manager:latest
+    command: monitor --daemon --interactive=false --hosts=mariadb1,mariadb2,mariadb3 --user=root:changeme --rpluser=repl:pass --http-server --http-bind-address=0.0.0.0
+    depends_on:
+      - mragent1
+      - mragent2
+      - mragent3
+    tty: true
+    ports:
+      - '10001:10001'
+    stdin_open: true
+
+  mragent1:
+    image: tanji/replication-manager:latest
+    command: agent --hosts=mariadb1 --user=root --rpluser=repl:pass --verbose
+    depends_on:
+      - mariadb1
+
+  mragent2:
+    image: tanji/replication-manager:latest
+    command: agent --hosts=mariadb2 --user=root --rpluser=repl:pass --verbose
+    depends_on:
+      - mariadb2
+
+  mragent3:
+    image: tanji/replication-manager:latest
+    command: agent --hosts=mariadb1 --user=root --rpluser=repl:pass --verbose
+    depends_on:
+      - mariadb3
+
+  mariadb1:
+    build:
+      context: ../../mariadb-alpine
+      dockerfile: Dockerfile
+    command: --log-bin --skip-name-resolve --server_id=1 --sync_binlog=1 --innodb_flush_log_at_trx_commit=1 --userstat=1 --innodb_monitor_enable=all --plugin-load=query_response_time --query_response_time_stats=1 --performance_schema=on
+    volumes:
+      - ./mariadb/bootstrap-mrm.sql:/docker-entrypoint-initdb.d/bootstrap-mrm.sql:ro
+    expose:
+      - 3306
+    environment:
+      - MYSQL_DATABASE=example
+      - MYSQL_USER=example
+      - MYSQL_PASSWORD=changeme
+      - MYSQL_ROOT_PASSWORD=changeme
+
+  mariadb2:
+    build:
+      context: ../../mariadb-alpine
+      dockerfile: Dockerfile
+    command: --log-bin --skip-name-resolve --server_id=2 --sync_binlog=1 --innodb_flush_log_at_trx_commit=1 --userstat=1 --innodb_monitor_enable=all --plugin-load=query_response_time --query_response_time_stats=1 --performance_schema=on
+    volumes:
+      - ./mariadb/bootstrap-mrm.sql:/docker-entrypoint-initdb.d/bootstrap-mrm.sql:ro
+    expose:
+      - 3306
+    environment:
+      - MYSQL_DATABASE=example
+      - MYSQL_USER=example
+      - MYSQL_PASSWORD=changeme
+      - MYSQL_ROOT_PASSWORD=changeme
+
+  mariadb3:
+    build:
+      context: ../../mariadb-alpine
+      dockerfile: Dockerfile
+    command: --log-bin --skip-name-resolve --server_id=3 --sync_binlog=1 --innodb_flush_log_at_trx_commit=1 --userstat=1 --innodb_monitor_enable=all --plugin-load=query_response_time --query_response_time_stats=1 --performance_schema=on
+    volumes:
+      - ./mariadb/bootstrap-mrm.sql:/docker-entrypoint-initdb.d/bootstrap-mrm.sql:ro
+    expose:
+      - 3306
+    environment:
+      - MYSQL_DATABASE=example
+      - MYSQL_USER=example
+      - MYSQL_PASSWORD=changeme
+      - MYSQL_ROOT_PASSWORD=changeme
+

@@ -1,0 +1,130 @@
+# MaxScale documentation on GitHub:
+# https://github.com/mariadb-corporation/MaxScale/blob/master/Documentation/Documentation-Contents.md
+
+# Global parameters
+#
+# Complete list of configuration options:
+# https://github.com/mariadb-corporation/MaxScale/blob/master/Documentation/Getting-Started/Configuration-Guide.md
+
+[maxscale]
+maxlog=1
+threads=1
+log_info=1
+
+
+# Server definitions
+#
+# Set the address of the server to the network
+# address of a MySQL server.
+#
+
+
+[mariadb1]
+address=mariadb1
+port=3306
+protocol=MySQLBackend
+type=server
+
+[mariadb2]
+address=mariadb2
+port=3306
+protocol=MySQLBackend
+type=server
+
+[mariadb3]
+address=mariadb3
+port=3306
+protocol=MySQLBackend
+type=server
+
+
+# Monitor for the servers
+#
+# This will keep MaxScale aware of the state of the servers.
+# MySQL Monitor documentation:
+# https://github.com/mariadb-corporation/MaxScale/blob/master/Documentation/Monitors/MySQL-Monitor.md
+
+
+[mysql_monitor]
+module=mysqlmon
+monitor_interval=1000
+passwd=pass
+servers=mariadb1,mariadb2,mariadb3
+type=monitor
+user=maxscale
+
+
+# Service definitions
+#
+# Service Definition for a read-only service and
+# a read/write splitting service.
+#
+
+
+[maxadmin_service]
+router=cli
+type=service
+
+[maxinfo]
+passwd=myreallysecretpassword
+router=maxinfo
+type=service
+user=myuser
+
+[read_only_service]
+passwd=pass
+router=readconnroute
+router_options=slave
+servers=mariadb3
+type=service
+user=maxscale
+
+[read_write_service]
+enable_root_user=1
+max_slave_replication_lag=30
+passwd=pass
+router=readwritesplit
+router_options=master_failure_mode=fail_instantly
+servers=mariadb1,mariadb2,mariadb3
+type=service
+user=maxscale
+
+
+# Listener definitions for the services
+#
+# These listeners represent the ports the
+# services will listen on.
+#
+
+
+
+[maxadmin_listener]
+protocol=maxscaled
+service=maxadmin_service
+socket=/tmp/maxadmin/maxadmin.sock
+type=listener
+
+[maxinfo_json_listener]
+port=8003
+protocol=HTTPD
+service=maxinfo
+type=listener
+
+[maxinfo_listener]
+port=9003
+protocol=MySQLClient
+service=maxinfo
+type=listener
+
+[read_only_listener]
+port=13307
+protocol=MySQLClient
+service=read_only_service
+type=listener
+
+[read_write_listener]
+port=13306
+protocol=MySQLClient
+service=read_write_service
+type=listener
+

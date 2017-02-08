@@ -1,0 +1,53 @@
+[Galera Monitor]
+type=monitor
+module=galeramon
+servers=mariadb1, mariadb2
+user=maxscale
+passwd=pass
+disable_master_failback=1
+
+[Splitter Service]
+type=service
+router=readwritesplit
+servers=mariadb1, mariadb2, mariadb3
+max_slave_replication_lag=30
+user=maxscale
+passwd=pass
+enable_root_user=1
+
+[Splitter Listener]
+type=listener
+service=Splitter Service
+protocol=MySQLClient
+port=3306
+
+[mariadb1]
+type=server
+address=mariadb1
+port=3306
+protocol=MySQLBackend
+
+[mariadb2]
+type=server
+address=mariadb2
+port=3306
+protocol=MySQLBackend
+
+[MaxInfo]
+type=service
+router=maxinfo
+user=myuser
+passwd=myreallysecretpassword
+
+[MaxInfo JSON Listener]
+type=listener
+service=MaxInfo
+protocol=HTTPD
+port=8003
+
+[MaxInfo Listener]
+type=listener
+service=MaxInfo
+protocol=MySQLClient
+port=9003
+

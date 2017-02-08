@@ -1,0 +1,76 @@
+---
+version: '2'
+services:
+  maxscale:
+    build:
+      context: ../../maxscale/latest
+      dockerfile: Dockerfile
+    volumes:
+      - ./maxscale/maxscale.cnf:/etc/maxscale.cnf:ro
+    depends_on:
+      - mrm
+    expose:
+      - 3306
+      - 8003
+      - 9003
+    ports:
+      - "13306:3306"
+      - "8003:8003"
+      - "9003:9003"
+    depends_on:
+      - mariadb1
+      - mariadb2
+      - mariadb3
+
+  mariadb1:
+    image: mariadb:10.1
+    command: --log-bin=mysqld-bin --skip-name-resolve --server_id=1 --sync_binlog=1 --innodb_flush_log_at_trx_commit=1 --userstat=1 --innodb_monitor_enable=all --plugin-load=query_response_time --query_response_time_stats=1 --performance_schema=on --wsrep-cluster-name=local --wsrep-cluster-address=gcomm://
+    volumes:
+      - ./mariadb/bootstrap-galera.sql:/docker-entrypoint-initdb.d/bootstrap-galera.sql:ro
+      - ./mariadb/galera.cnf:/etc/mysql/conf.d/galera.cnf
+    expose:
+      - 3306
+      - 4567
+    environment:
+      - MYSQL_DATABASE=example
+      - MYSQL_USER=example
+      - MYSQL_PASSWORD=changeme
+      - MYSQL_ROOT_PASSWORD=changeme
+      - MYSQL_INITDB_SKIP_TZINFO=true
+
+  mariadb2:
+    image: mariadb:10.1
+    command: --log-bin=mysqld-bin --skip-name-resolve --server_id=2 --sync_binlog=1 --innodb_flush_log_at_trx_commit=1 --userstat=1 --innodb_monitor_enable=all --plugin-load=query_response_time --query_response_time_stats=1 --performance_schema=on --wsrep-cluster-name=local --wsrep-cluster-address=gcomm://mariadb1
+    volumes:
+      - ./mariadb/bootstrap-galera.sql:/docker-entrypoint-initdb.d/bootstrap-galera.sql:ro
+      - ./mariadb/galera.cnf:/etc/mysql/conf.d/galera.cnf
+    expose:
+      - 3306
+      - 4567
+    depends_on:
+      - mariadb1
+    environment:
+      - MYSQL_DATABASE=example
+      - MYSQL_USER=example
+      - MYSQL_PASSWORD=changeme
+      - MYSQL_ROOT_PASSWORD=changeme
+      - MYSQL_INITDB_SKIP_TZINFO=true
+
+  mariadb3:
+    image: mariadb:10.1
+    command: --log-bin=mysqld-bin --skip-name-resolve --server_id=3 --sync_binlog=1 --innodb_flush_log_at_trx_commit=1 --userstat=1 --innodb_monitor_enable=all --plugin-load=query_response_time --query_response_time_stats=1 --performance_schema=on --wsrep-cluster-name=local --wsrep-cluster-address=gcomm://mariadb1
+    volumes:
+      - ./mariadb/bootstrap-galera.sql:/docker-entrypoint-initdb.d/bootstrap-galera.sql:ro
+      - ./mariadb/galera.cnf:/etc/mysql/conf.d/galera.cnf
+    expose:
+      - 3306
+      - 4567
+    depends_on:
+      - mariadb1
+    environment:
+      - MYSQL_DATABASE=example
+      - MYSQL_USER=example
+      - MYSQL_PASSWORD=changeme
+      - MYSQL_ROOT_PASSWORD=changeme
+      - MYSQL_INITDB_SKIP_TZINFO=true
+
