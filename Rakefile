@@ -17,24 +17,15 @@ namespace :build do
   namespace :maxscale do
     desc "MaxScale Latest"
     task :latest do
-      dockerfile = File.read("maxscale/latest/Dockerfile")
+      dockerfile = File.read("maxscale/Dockerfile")
       new_dockerfile = dockerfile.
         gsub(/^ENV MAXSCALE_VERSION.*/,"ENV MAXSCALE_VERSION=#{CONFIG['maxscale_version']}").
         gsub(/^ENV MAXSCALE_PACKAGE_VERSION.*/,"ENV MAXSCALE_PACKAGE_VERSION=#{CONFIG['maxscale_package_version']}")
       File.open("maxscale/latest/Dockerfile","w") do |file|
         file << new_dockerfile
       end
-      sh 'docker build -t maxscale maxscale/latest'
     end
 
-    desc "MaxScale Git Branch (rake build:maxscale:git VERSION=git_ref)"
-    task :git do
-      if ENV['VERSION'].nil?
-        sh 'docker build --build-arg VERSION=develop -t maxscale:develop maxscale/develop'
-      else
-        sh "docker build --build-arg VERSION=#{ENV['VERSION']} -t maxscale:develop maxscale/develop"
-      end
-    end
   end
 end
 
